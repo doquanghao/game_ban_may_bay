@@ -7,13 +7,12 @@ namespace ChobiAssets.PTM
 
     public class Turret_Horizontal_CS : MonoBehaviour
     {
-        /* 
-		 * This script rotates the turret horizontally.
-		 * This script works in combination with "Aiming_Control_CS" in the MainBody.
-		*/
+        /*
+        * Kịch bản này xoay pháo theo chiều ngang.
+        * Kịch bản này hoạt động phối hợp với "Aiming_Control_CS" trong MainBody.
+        */
 
 
-        // User options >>
         public bool Limit_Flag;
         public float Max_Right = 170.0f;
         public float Max_Left = 170.0f;
@@ -21,7 +20,6 @@ namespace ChobiAssets.PTM
         public float Acceleration_Time = 0.5f;
         public float Deceleration_Time = 0.5f;
         public Bullet_Generator_CS Bullet_Generator_Script;
-        // << User options
 
 
         Transform thisTransform;
@@ -31,11 +29,10 @@ namespace ChobiAssets.PTM
         bool isTracking;
         float angleY;
         Vector3 currentLocalAngles;
-        public float Turn_Rate; // Referred to from "Sound_Control_Motor_CS".
+        public float Turn_Rate; // Được tham chiếu từ "Sound_Control_Motor_CS".
         float previousTurnRate;
         float bulletVelocity;
-        public bool Is_Ready = true; // Referred to from "Cannon_Fire_CS".
-
+        public bool Is_Ready = true; // Được tham chiếu từ "Cannon_Fire_CS".
 
         void Start()
         {
@@ -82,14 +79,7 @@ namespace ChobiAssets.PTM
 
         void FixedUpdate()
         {
-            if (aimingScript.Use_Auto_Turn)
-            {
-                Auto_Turn();
-            }
-            else
-            {
-                Manual_Turn();
-            }
+            Auto_Turn();
         }
 
 
@@ -100,17 +90,17 @@ namespace ChobiAssets.PTM
                 return;
             }
 
-            // Calculate the target angle.
+            // Tính toán góc mục tiêu.
             float targetAngle;
             if (isTracking)
-            { // Tracking the target.
+            { // Theo dõi mục tiêu.
 
-                // Get the target position.
+                // Lấy vị trí của mục tiêu.
                 Vector3 targetPosition = aimingScript.Target_Position;
                 if (aimingScript.Target_Rigidbody && aimingScript.Use_Auto_Lead)
-                { // The target has a rigidbody, and the "Use_Auto_Lead" option is enabled.
-
-                    // Calculate the lead angle to the target.
+                {
+                    // Mục tiêu có một rigidbody, và tùy chọn "Use_Auto_Lead" đã được bật.
+                    // Tính toán góc dẫn đến mục tiêu.
                     float distance = Vector3.Distance(thisTransform.position, targetPosition);
                     if (Bullet_Generator_Script)
                     {
@@ -119,7 +109,7 @@ namespace ChobiAssets.PTM
                     targetPosition += aimingScript.Target_Rigidbody.velocity * aimingScript.Aiming_Blur_Multiplier * (distance / bulletVelocity);
                 }
 
-                // Calculate the target angle.
+                // Tính toán góc mục tiêu.
                 Vector3 targetLocalPos = parentTransform.InverseTransformPoint(targetPosition);
                 Vector2 targetLocalPos2D;
                 targetLocalPos2D.x = targetLocalPos.x;
@@ -136,7 +126,7 @@ namespace ChobiAssets.PTM
                 targetAngle += aimingScript.Adjust_Angle.x;
             }
             else
-            { // Not tracking. >> Return to the initial angle.
+            { // Không theo dõi. >> Quay trở lại góc ban đầu.
                 targetAngle = Mathf.DeltaAngle(angleY, 0.0f);
                 if (Mathf.Abs(targetAngle) < 0.01f)
                 {
@@ -144,7 +134,7 @@ namespace ChobiAssets.PTM
                 }
             }
 
-            // Calculate the "Turn_Rate".
+            // Tính toán "Turn_Rate".
             float sign = Mathf.Sign(targetAngle);
             targetAngle = Mathf.Abs(targetAngle);
             float currentSlowdownAng = Mathf.Abs(Speed_Mag * previousTurnRate) * Deceleration_Time;
@@ -172,67 +162,17 @@ namespace ChobiAssets.PTM
             currentLocalAngles.y = angleY;
             thisTransform.localEulerAngles = currentLocalAngles;
 
-            // Set the "Is_Ready".
+
+            // Đặt trạng thái "Is_Ready".
             if (targetAngle <= aimingScript.OpenFire_Angle)
             {
-                Is_Ready = true; // Referred to from "Cannon_Fire_CS".
+                Is_Ready = true; // Được tham chiếu từ "Cannon_Fire_CS".
             }
             else
             {
-                Is_Ready = false; // Referred to from "Cannon_Fire_CS".
+                Is_Ready = false; // Được tham chiếu từ "Cannon_Fire_CS".
             }
         }
-
-
-        void Manual_Turn()
-        {
-            if (aimingScript.Turret_Turn_Rate != 0.0f)
-            {
-                isTurning = true;
-            }
-
-            if (isTurning == false)
-            {
-                return;
-            }
-
-            // Calculate the "Turn_Rate".
-            float targetTurnRate = aimingScript.Turret_Turn_Rate;
-            if (targetTurnRate != 0.0f)
-            {
-                Turn_Rate = Mathf.MoveTowards(Turn_Rate, targetTurnRate, Time.fixedDeltaTime / Acceleration_Time);
-            }
-            else
-            {
-                Turn_Rate = Mathf.MoveTowards(Turn_Rate, targetTurnRate, Time.fixedDeltaTime / Deceleration_Time);
-            }
-            if (Turn_Rate == 0.0f)
-            {
-                isTurning = false;
-            }
-
-            // Rotate.
-            angleY += Speed_Mag * Turn_Rate * Time.fixedDeltaTime;
-            if (Limit_Flag)
-            {
-                angleY = Mathf.Clamp(angleY, Max_Left, Max_Right);
-            }
-            currentLocalAngles.y = angleY;
-            thisTransform.localEulerAngles = currentLocalAngles;
-        }
-
-
-        void Turret_Destroyed_Linkage()
-        { // Called from "Damage_Control_Center_CS".
-            Destroy(this);
-        }
-
-
-        void Pause(bool isPaused)
-        { // Called from "Game_Controller_CS".
-            this.enabled = !isPaused;
-        }
-
     }
 
 }

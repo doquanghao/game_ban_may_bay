@@ -9,36 +9,34 @@ namespace ChobiAssets.PTM
     public class Sound_Control_Engine_CS : MonoBehaviour
     {
         /*
-		 * This script is attached to the "Engine_Sound" object in the tank.
-		 * This script controls the engine sound in the tank.
-		*/
+        Tập lệnh này được gắn vào đối tượng "Engine_Sound" trong xe tăng.
+        Tập lệnh này điều khiển âm thanh động cơ trong xe tăng.
+        */
 
-        // User options >>
-        public float Min_Engine_Pitch = 1.0f;
-        public float Max_Engine_Pitch = 2.0f;
-        public float Min_Engine_Volume = 0.5f;
-        public float Max_Engine_Volume = 1.0f;
-        public Rigidbody Left_Reference_Rigidbody;
-        public Rigidbody Right_Reference_Rigidbody;
-        public string Reference_Name_L;
-        public string Reference_Name_R;
-        public string Reference_Parent_Name_L;
-        public string Reference_Parent_Name_R;
-        // << User options
+        public float Min_Engine_Pitch = 1.0f;//Điểm pitch tối thiểu của âm thanh động cơ.
+        public float Max_Engine_Pitch = 2.0f;//Điểm pitch tối đa của âm thanh động cơ.
+        public float Min_Engine_Volume = 0.5f;//Âm lượng tối thiểu của âm thanh động cơ.
+        public float Max_Engine_Volume = 1.0f;//Âm lượng tối đa của âm thanh động cơ.
+        public Rigidbody Left_Reference_Rigidbody;//Rigidbody tham chiếu bánh xe trái.
+        public Rigidbody Right_Reference_Rigidbody;//Rigidbody tham chiếu bánh xe phải.
+        public string Reference_Name_L;//Tên của đối tượng tham chiếu bánh xe trái.
+        public string Reference_Name_R;//Tên của đối tượng tham chiếu bánh xe phải.
+        public string Reference_Parent_Name_L;//Tên của cha của đối tượng tham chiếu bánh xe trái.
+        public string Reference_Parent_Name_R;//Tên của cha của đối tượng tham chiếu bánh xe phải.
 
-        // For the editor script to display the current velocity.
-        public float Left_Velocity;
-        public float Right_Velocity;
+        // Để kịch bản biên tập hiển thị vận tốc hiện tại.
+        public float Left_Velocity;//Tốc độ của bánh xe trái.
+        public float Right_Velocity;//Tốc độ của bánh xe phải.
 
-        // For editor script.
-        public bool Has_Changed;
+        // Đối với kịch bản biên tập viên.
+        public bool Has_Changed;//Biến để xác định xem đã có thay đổi hay không.
 
-        AudioSource thisAudioSource;
-        float currentRate;
-        float targetRate;
-        float accelerationRate = 8.0f;
-        float decelerationRate = 4.0f;
-        Drive_Control_CS driveScript;
+        AudioSource thisAudioSource;//Đối tượng AudioSource để điều khiển âm thanh.
+        float currentRate;//Tỷ lệ hiện tại của tốc độ động cơ.
+        float targetRate;// Tỷ lệ mục tiêu của tốc độ động cơ.
+        float accelerationRate = 8.0f;//Tỷ lệ tăng tốc của âm thanh động cơ.
+        float decelerationRate = 4.0f;//Tỷ lệ giảm tốc của âm thanh động cơ.
+        Drive_Control_CS driveScript;//Tham chiếu tới tập lệnh "Drive_Control_CS".
 
 
         void Start()
@@ -55,10 +53,11 @@ namespace ChobiAssets.PTM
             thisAudioSource.volume = 0.0f;
             thisAudioSource.Play();
 
-            // Find the reference rigidbodies.
+            // Tìm các rigidbody tham chiếu.
             Transform bodyTransform = transform.parent;
             if (Left_Reference_Rigidbody == null)
-            { // The left reference wheel has been lost by modifying.
+            {
+                // Bánh xe tham chiếu bên trái đã bị thay đổi.
                 if (string.IsNullOrEmpty(Reference_Name_L) == false && string.IsNullOrEmpty(Reference_Parent_Name_L) == false)
                 {
                     Transform leftReferenceTransform = bodyTransform.Find(Reference_Parent_Name_L + "/" + Reference_Name_L);
@@ -69,7 +68,8 @@ namespace ChobiAssets.PTM
                 }
             }
             if (Right_Reference_Rigidbody == null)
-            { // The right reference wheel has been lost by modifying.
+            {
+                // Bánh xe tham chiếu bên phải đã bị thay đổi.
                 if (string.IsNullOrEmpty(Reference_Name_R) == false && string.IsNullOrEmpty(Reference_Parent_Name_R) == false)
                 {
                     Transform rightReferenceTransform = bodyTransform.Find(Reference_Parent_Name_R + "/" + Reference_Name_R);
@@ -79,13 +79,8 @@ namespace ChobiAssets.PTM
                     }
                 }
             }
-            if (Left_Reference_Rigidbody == null || Right_Reference_Rigidbody == null)
-            {
-                Debug.LogWarning("'Reference Rigidbody' for the engine sound cannot be found.");
-                Destroy(this);
-            }
 
-            // Get the "Drive_Control_CS".
+            // Lấy "Drive_Control_CS".
             driveScript = GetComponentInParent<Drive_Control_CS>();
         }
 
@@ -98,47 +93,25 @@ namespace ChobiAssets.PTM
 
         void Engine_Sound()
         {
-            // Get the velocity.
+            // Lấy vận tốc.
             Left_Velocity = Left_Reference_Rigidbody.velocity.magnitude;
             Right_Velocity = Right_Reference_Rigidbody.velocity.magnitude;
 
-            // Set the rate.
+            // Đặt tỷ lệ.
             targetRate = (Left_Velocity + Right_Velocity) / 2.0f / driveScript.Max_Speed;
 
             if (targetRate > currentRate)
-            { // Acceleration
+            { // Tăng tốc
                 currentRate = Mathf.MoveTowards(currentRate, targetRate, accelerationRate * Time.deltaTime);
             }
             else
-            { // Deceleration
+            { // Giảm tốc
                 currentRate = Mathf.MoveTowards(currentRate, targetRate, decelerationRate * Time.deltaTime);
             }
-            // Set the pitch and volume.
+            // Đặt pitch và âm lượng.
             thisAudioSource.pitch = Mathf.Lerp(Min_Engine_Pitch, Max_Engine_Pitch, currentRate);
             thisAudioSource.volume = Mathf.Lerp(Min_Engine_Volume, Max_Engine_Volume, currentRate);
         }
-
-
-        void MainBody_Destroyed_Linkage()
-        { // Called from "Damage_Control_Center_CS".
-            thisAudioSource.Stop();
-            Destroy(this);
-        }
-
-
-        void Pause(bool isPaused)
-        { // Called from "Game_Controller_CS".
-            this.enabled = !isPaused;
-            if (isPaused)
-            {
-                thisAudioSource.Stop();
-            }
-            else
-            {
-                thisAudioSource.Play();
-            }
-        }
-
     }
 
 }

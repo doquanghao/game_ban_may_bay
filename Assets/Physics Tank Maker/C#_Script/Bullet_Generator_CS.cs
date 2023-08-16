@@ -6,36 +6,19 @@ namespace ChobiAssets.PTM
 
     public class Bullet_Generator_CS : MonoBehaviour
     {
-        /* 
-		 * This script is attached to the "Bullet_Generator" under the "Barrel_Base" in the tank.
-		 * This script instantiates the bullet prefab and shoot it from the muzzle.
-		 * Also you can create a prefab for the bullet using this script.
-		*/
 
-        // User options >>
-        public GameObject AP_Bullet_Prefab;
-        public GameObject HE_Bullet_Prefab;
-        public GameObject MuzzleFire_Object;
-        public float Attack_Point = 500.0f;
-        public float Attack_Point_HE = 500.0f;
-        public float Initial_Velocity = 500.0f;
-        public float Initial_Velocity_HE = 500.0f;
+        public GameObject HE_Bullet_Prefab;// Prefab đạn HE
+        public GameObject MuzzleFire_Object;// Vật phẩm tạo lửa đầu nòng
+        public float Attack_Point_HE = 500.0f;// Điểm tấn công cho đạn HE
+        public float Initial_Velocity_HE = 500.0f;// Vận tốc ban đầu cho đạn HE
 
-        public float Life_Time = 5.0f;
-        public int Initial_Bullet_Type = 0;
-        public float Offset = 0.5f;
-        public bool Debug_Flag = false;
-        // << User options
+        public float Life_Time = 5.0f;// Thời gian sống của đạn
+        public float Offset = 0.5f;// Khoảng cách vị trí bắn so với nòng súng
 
 
-        public float Attack_Multiplier = 1.0f; // Set by "Special_Settings_CS".
-        public int Barrel_Type = 0; // Set by "Barrel_Base". (0 = Single barrel, 1 = Left of twins, 2 = Right of twins)
-        public float Current_Bullet_Velocity; // Referred to from "Turret_Horizontal_CS", "Cannon_Vertical_CS", "UI_Lead_Marker_Control_CS".
-        int currentBulletType;
+        public float Attack_Multiplier = 1.0f; // Được thiết lập bởi "Special_Settings_CS".
+        public float Current_Bullet_Velocity; // Tham chiếu từ "Turret_Horizontal_CS", "Cannon_Vertical_CS", "UI_Lead_Marker_Control_CS".
         Transform thisTransform;
-
-        // Only for AI tank.
-        public bool Can_Aim; // Set by "AI_CS", and referred to from "Cannon_Fire_Input_99_AI_CS" script.
 
 
         void Start()
@@ -48,103 +31,65 @@ namespace ChobiAssets.PTM
         {
             thisTransform = transform;
 
-            // Switch the bullet type at the first time.
-            currentBulletType = Initial_Bullet_Type - 1; // (Note.) The "currentBulletType" value is added by 1 soon in the "Switch_Bullet_Type()".
+            // Chuyển đổi loại đạn lần đầu.
             Switch_Bullet_Type();
         }
 
 
         public void Switch_Bullet_Type()
-        { // Called from "Cannon_Fire_Input_##_##" scripts.
-            currentBulletType += 1;
-            if (currentBulletType > 1)
-            {
-                currentBulletType = 0;
-            }
-
-            // Set the bullet velocity.
-            switch (currentBulletType)
-            {
-                case 0: // AP
-                    Current_Bullet_Velocity = Initial_Velocity;
-                    break;
-
-                case 1: // HE
-                    Current_Bullet_Velocity = Initial_Velocity_HE;
-                    break;
-            }
+        {
+            // Đặt vận tốc đạn.
+            Current_Bullet_Velocity = Initial_Velocity_HE;
         }
 
 
-        public void Fire_Linkage(int direction)
-        { // Called from "Cannon_Fire_CS".
-            if (Barrel_Type == 0 || Barrel_Type == direction)
-            { // Single barrel, or the same direction.
-
-                // Generate the bullet and shoot it.
-                StartCoroutine("Generate_Bullet");
-            }
+        public void Fire_Linkage()
+        { 
+          // Tạo ra đạn và bắn.
+            StartCoroutine(Generate_Bullet());
         }
 
 
         IEnumerator Generate_Bullet()
         {
-            // Generate the muzzle fire.
+            // Tạo ra lửa đầu nòng.
             if (MuzzleFire_Object)
             {
                 Instantiate(MuzzleFire_Object, thisTransform.position, thisTransform.rotation, thisTransform);
             }
 
-            // Generate the bullet.
+            // Tạo ra đạn.
             GameObject bulletObject;
             float attackPoint = 0;
-            switch (currentBulletType)
+
+            // HE
+            if (HE_Bullet_Prefab == null)
             {
-                case 0: // AP
-                    if (AP_Bullet_Prefab == null)
-                    {
-                        Debug.LogError("'AP_Bullet_Prefab' is not assigned in the 'Bullet_Generator'.");
-                        yield break;
-                    }
-                    bulletObject = Instantiate(AP_Bullet_Prefab, thisTransform.position + (thisTransform.forward * Offset), thisTransform.rotation) as GameObject;
-                    attackPoint = Attack_Point;
-                    break;
-
-                case 1: // HE
-                    if (HE_Bullet_Prefab == null)
-                    {
-                        Debug.LogError("'HE_Bullet_Prefab' is not assigned in the 'Bullet_Generator'.");
-                        yield break;
-                    }
-                    bulletObject = Instantiate(HE_Bullet_Prefab, thisTransform.position + (thisTransform.forward * Offset), thisTransform.rotation) as GameObject;
-                    attackPoint = Attack_Point_HE;
-                    break;
-
-                default:
-                    yield break;
+                Debug.LogError("'HE_Bullet_Prefab' is not assigned in the 'Bullet_Generator'.");
+                yield break;
             }
+            bulletObject = Instantiate(HE_Bullet_Prefab, thisTransform.position + (thisTransform.forward * Offset), thisTransform.rotation) as GameObject;
+            attackPoint = Attack_Point_HE;
 
-            // Set values of "Bullet_Control_CS" in the bullet.
+            // Đặt các giá trị cho "Bullet_Control_CS" trong đạn.
             Bullet_Control_CS bulletScript = bulletObject.GetComponent<Bullet_Control_CS>();
             bulletScript.Attack_Point = attackPoint;
             bulletScript.Initial_Velocity = Current_Bullet_Velocity;
             bulletScript.Life_Time = Life_Time;
             bulletScript.Attack_Multiplier = Attack_Multiplier;
-            bulletScript.Debug_Flag = Debug_Flag;
 
-            // Set the tag.
+            // Đặt tag.
             bulletObject.tag = "Finish"; // (Note.) The ray cast for aiming does not hit any object with "Finish" tag.
 
-            // Set the layer.
+            // Đặt layer.
             bulletObject.layer = Layer_Settings_CS.Bullet_Layer;
 
-            // Shoot.
+            // Bắn.
             yield return new WaitForFixedUpdate();
             Rigidbody rigidbody = bulletObject.GetComponent<Rigidbody>();
             Vector3 currentVelocity = bulletObject.transform.forward * Current_Bullet_Velocity;
             rigidbody.velocity = currentVelocity;
         }
-
     }
 
 }

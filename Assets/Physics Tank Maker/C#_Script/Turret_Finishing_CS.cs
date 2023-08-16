@@ -6,7 +6,8 @@ namespace ChobiAssets.PTM
 
     public class Turret_Finishing_CS : MonoBehaviour
     {
-        /*
+
+  /*
 		 * This script is attached to the "Turret Objects" in the tank.
 		 * This script change the hierarchy of the child objects such as "Turret_Base", "Cannon_Base" and "Barrel_Base" at the first time.
 		*/

@@ -45,11 +45,11 @@ namespace ChobiAssets.PTM
             // Send the damage value to the "Damage_Control_Center_CS".
             if (centerScript.Receive_Damage(damage, 3, Track_Index) == true)
             { // type = 3 (Track_Collider), index = Track_Index (0 = Left, 1 = Right). true = The track has been destroyed.
-                
+
                 // Breaking the track by calling the "Linked_Piece_Script". ("Static_Track_Piece_CS" script in the track piece.)
                 if (Linked_Piece_Script)
                 {
-                    Linked_Piece_Script.Start_Breaking(centerScript.Track_Repairing_Time);
+                    //  Linked_Piece_Script.Start_Breaking(centerScript.Track_Repairing_Time);
                 }
                 return true;
             }

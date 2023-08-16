@@ -41,20 +41,20 @@ namespace ChobiAssets.PTM
                 if (aiScript.Direct_Fire == true)
                 { // The tank aims a target directly.
                     // Check all the "Bullet_Generator" in the children can aim the target.
-                    for (int i = 0; i < cannonFireScript.Bullet_Generator_Scripts.Length; i++)
-                    {
-                        if (cannonFireScript.Bullet_Generator_Scripts[i].Can_Aim == false)
-                        { // At least one of the "Bullet_Generator" in the children cannot aim the target.
-                            // Change the aiming offset.
-                            obstacleCount += Time.deltaTime;
-                            if (obstacleCount > 1.0f)
-                            {
-                                obstacleCount = 0.0f;
-                                aimingScript.AI_Random_Offset();
-                            }
-                            return;
-                        }
-                    }
+                    // for (int i = 0; i < cannonFireScript.Bullet_Generator_Scripts.Length; i++)
+                    // {
+                    //     // if (cannonFireScript.Bullet_Generator_Scripts[i].Can_Aim == false)
+                    //     // { // At least one of the "Bullet_Generator" in the children cannot aim the target.
+                    //     //     // Change the aiming offset.
+                    //     //     obstacleCount += Time.deltaTime;
+                    //     //     if (obstacleCount > 1.0f)
+                    //     //     {
+                    //     //         obstacleCount = 0.0f;
+                    //     //         aimingScript.AI_Random_Offset();
+                    //     //     }
+                    //     //     return;
+                    //     // }
+                    // }
                     // All the "Bullet_Generator" in the children can aim the target.
                     obstacleCount = 0.0f;
                 }

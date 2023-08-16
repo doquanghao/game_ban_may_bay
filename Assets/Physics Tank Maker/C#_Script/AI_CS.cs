@@ -761,17 +761,17 @@ namespace ChobiAssets.PTM
                 {
                     if (raycastHit.transform.root == targetRootTransform)
                     { // The line hits the target.
-                        bulletGeneratorScripts[i].Can_Aim = true;
+                       // bulletGeneratorScripts[i].Can_Aim = true;
                         flag = true; // At least one of the "Bullet_Generator" can aim the target.
                     }
                     else
                     { // The line hits other object.
-                        bulletGeneratorScripts[i].Can_Aim = false;
+                       // bulletGeneratorScripts[i].Can_Aim = false;
                     }
                 }
                 else
                 { // The line does not hit anyhing. >> There is no obstacle between the muzzle and the target.
-                    bulletGeneratorScripts[i].Can_Aim = true;
+                   // bulletGeneratorScripts[i].Can_Aim = true;
                     flag = true; // At least one of the "Bullet_Generator" can aim the target.
                 }
             }

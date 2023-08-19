@@ -32,7 +32,7 @@ namespace ChobiAssets.PTM
 
         void Update()
         {
-            if (Is_Loaded && Input.GetKey(General_Settings_CS.Fire_Key))
+            if (Is_Loaded && Input.GetKey(KeyCode.Mouse0))
             {
                 Fire();
             }

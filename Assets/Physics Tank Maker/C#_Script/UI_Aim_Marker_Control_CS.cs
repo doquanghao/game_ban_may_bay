@@ -5,31 +5,28 @@ using UnityEngine.UI;
 
 namespace ChobiAssets.PTM
 {
-	
-	[DefaultExecutionOrder (+2)] // (Note.) This script is executed after the "Aiming_Control_CS", in order to move the marker smoothly.
+
     public class UI_Aim_Marker_Control_CS : MonoBehaviour
-	{
+    {
         /*
-		 * This script is attached to the "MainBody" of the tank.
-		 * This script controls the 'Aim_Marker' in the scene.
-         * This script works in combination with "Aiming_Control_CS" in the tank.
-		*/
+         * Kịch bản này được gắn vào "MainBody" của xe tăng.
+         * Kịch bản này điều khiển 'Aim_Marker' trong cảnh.
+         * Kịch bản này hoạt động phối hợp với "Aiming_Control_CS" trong xe tăng.
+        */
 
-        // User options >>
         public string Aim_Marker_Name = "Aim_Marker";
-		// << User options
 
 
-		Aiming_Control_CS aimingScript;
-		Image markerImage;
-		Transform markerTransform;
+        Aiming_Control_CS aimingScript;
+        Image markerImage;
+        Transform markerTransform;
 
-		bool isSelected;
+        bool isSelected;
 
 
-		void Start()
+        void Start()
         {
-            // Get the marker image in the scene.
+            // Lấy hình ảnh của đánh dấu trong cảnh.
             if (string.IsNullOrEmpty(Aim_Marker_Name))
             {
                 return;
@@ -41,22 +38,21 @@ namespace ChobiAssets.PTM
             }
             else
             {
-                // The marker cannot be found in the scene.
-                Debug.LogWarning(Aim_Marker_Name + " cannot be found in the scene.");
+                // Không thể tìm thấy đánh dấu trong cảnh.
+                Debug.LogWarning(Aim_Marker_Name + " không thể tìm thấy trong cảnh.");
                 Destroy(this);
                 return;
             }
             markerTransform = markerImage.transform;
 
-            // Get the "Aiming_Control_CS" in the tank.
+            // Lấy "Aiming_Control_CS" trong xe tăng.
             aimingScript = GetComponent<Aiming_Control_CS>();
             if (aimingScript == null)
             {
-                Debug.LogWarning("'Aiming_Control_CS' cannot be found in the MainBody.");
+                Debug.LogWarning("'Aiming_Control_CS' không thể tìm thấy trong MainBody.");
                 Destroy(this);
             }
         }
-
 
         void Update()
         {
@@ -71,15 +67,14 @@ namespace ChobiAssets.PTM
 
         void Marker_Control()
         {
-            // Set the appearance.
+            // Đặt giao diện.
             switch (aimingScript.Mode)
             {
-                case 0: // Keep the initial positon.
+                case 0: // Giữ vị trí ban đầu.
                     markerImage.enabled = false;
                     return;
-
-                case 1: // Free aiming.
-                case 2: // Locking on.
+                case 1: // Nhắm tự do.
+                case 2: // Đang khóa mục tiêu.
                     markerImage.enabled = true;
                     if (aimingScript.Target_Transform)
                     {
@@ -92,18 +87,18 @@ namespace ChobiAssets.PTM
                     break;
             }
 
-            // Set the position.
-            // Check the player is finding a target using the gun camera now.
+            // Đặt vị trí.
+            // Kiểm tra người chơi có đang tìm mục tiêu bằng ống ngắm súng không.
             if (aimingScript.reticleAimingFlag)
             {
-                // Set the marker at the center of the screen.
+                // Đặt đánh dấu ở trung tâm màn hình.
                 markerTransform.position = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 128.0f);
                 return;
             }
-            // Set the marker on the target position.
+            // Đặt đánh dấu tại vị trí của mục tiêu.
             Vector3 currentPosition = Camera.main.WorldToScreenPoint(aimingScript.Target_Position);
             if (currentPosition.z < 0.0f)
-            { // Behind of the camera.
+            { // Phía sau của máy ảnh.
                 markerImage.enabled = false;
             }
             else
@@ -113,9 +108,8 @@ namespace ChobiAssets.PTM
             markerTransform.position = currentPosition;
         }
 
-
         void Selected(bool isSelected)
-        { // Called from "ID_Settings_CS".
+        { // Được gọi từ "ID_Settings_CS".
             if (isSelected)
             {
                 this.isSelected = true;
@@ -123,7 +117,7 @@ namespace ChobiAssets.PTM
             else
             {
                 if (this.isSelected)
-                { // This tank is selected until now.
+                { // Xe tăng này đã được chọn cho đến bây giờ.
                     this.isSelected = false;
                     markerImage.enabled = false;
                 }

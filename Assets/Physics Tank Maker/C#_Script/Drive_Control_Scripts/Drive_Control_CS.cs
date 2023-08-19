@@ -8,12 +8,11 @@ namespace ChobiAssets.PTM
     {
 
         /*
-		 * This script is attached to the "MainBody" of the tank.
-		 * This script controls the driving of the tank, such as speed, torque, acceleration and so on.
-		 * This script works in combination with "Drive_Wheel_Parent_CS" in the 'Create_##Wheels objects', and "Drive_Wheel_CS" in the drive wheels.
-		*/
+  * Kịch bản này được gắn vào "MainBody" của xe tăng.
+  * Kịch bản này điều khiển việc lái xe của xe tăng, chẳng hạn như tốc độ, moment xoắn, gia tốc và như vậy.
+  * Kịch bản này hoạt động kết hợp với "Drive_Wheel_Parent_CS" trong các đối tượng 'Create_##Wheels', và "Drive_Wheel_CS" trong bánh lái.
+ */
 
-        // User options >>
         public float Torque = 2000.0f;
         public float Max_Speed = 8.0f;
         public float Turn_Brake_Drag = 150.0f;
@@ -42,31 +41,30 @@ namespace ChobiAssets.PTM
         public bool Sync_Speed_Rate;
         public float Actual_Speed_Offset_Rate = 1.0f;
         public float Actual_Speed_Tolerance_Rate = 0.2f;
-        // << User options
 
 
-        // Set by "inputType_Settings_CS".
+        // Được đặt bởi "inputType_Settings_CS".
         public int inputType = 0;
 
-        // Set by "Drive_Control_Input_##_##_CS" scripts.
-        public bool Stop_Flag = true; // Referred to from "Steer_Wheel_CS".
+        // Được tham chiếu từ "Drive_Wheel_Parent_CS".
+        public bool Stop_Flag = true; // Được tham chiếu từ cả "inputType_Settings_CS".
         public float L_Input_Rate;
         public float R_Input_Rate;
         public float Turn_Brake_Rate;
         public bool Pivot_Turn_Flag;
         public bool Apply_Brake;
 
-        // Referred to from "Drive_Wheel_Parent_CS".
-        public float Speed_Rate; // Referred to from also "inputType_Settings_CS".
+        // Được tham chiếu từ "Drive_Wheel_Parent_CS".
+        public float Speed_Rate; // Được tham chiếu từ cả "inputType_Settings_CS".
         public float L_Brake_Drag;
         public float R_Brake_Drag;
         public float Left_Torque;
         public float Right_Torque;
 
-        // Referred to from "Fix_Shaking_Rotation_CS".
+        // Được tham chiếu từ "Fix_Shaking_Rotation_CS".
         public bool Parking_Brake;
 
-        // Referred to from "AI_CS", "AI_Hand_CS", "UI_Speed_Indicator_Control_CS".
+        // Được tham chiếu từ "UI_Speed_Indicator_Control_CS".
         public float Current_Velocity;
 
         Transform thisTransform;
@@ -93,79 +91,42 @@ namespace ChobiAssets.PTM
 
         void Initialize()
         {
+            BroadcastMessage("Selected", true, SendMessageOptions.DontRequireReceiver);
             thisTransform = transform;
             thisRigidbody = GetComponent<Rigidbody>();
             defaultTorque = Torque;
 
-            // Get the input type.
-            if (inputType != 10)
-            { // This tank is not an AI tank.
-                inputType = General_Settings_CS.Input_Type;
-            }
+            inputType = General_Settings_CS.Input_Type;
 
-            // Set the acceleration rates.
+            // Đặt tỷ lệ gia tốc.
             if (Acceleration_Flag)
             {
                 acceleRate = 1.0f / Acceleration_Time;
                 deceleRate = 1.0f / Deceleration_Time;
             }
 
-            // Check the 'Downforce_Curve'.
+            // Kiểm tra 'Downforce_Curve'.
             if (Use_Downforce && Downforce_Curve.keys.Length < 2)
-            { // The 'Downforce_Curve' is not set yet.
+            { // 'Downforce_Curve' chưa được đặt.
                 Downforce_Curve = Create_Curve();
             }
 
-            // Check the 'Acceleration_Curve'.
+            // Kiểm tra 'Acceleration_Flag'.
             if (Acceleration_Flag && Acceleration_Curve.keys.Length < 2)
-            { // The 'Acceleration_Curve' is not set yet.
+            { // 'Acceleration_Curve' chưa được đặt.
                 Acceleration_Curve = Create_Curve();
             }
 
-            // Set the input script.
-            Set_Input_Script(inputType);
+            inputScript = gameObject.AddComponent<Drive_Control_Input_02_Keyboard_Pressing_CS>();
 
-            // Prepare the input script.
             if (inputScript != null)
             {
                 inputScript.Prepare(this);
-            }           
-        }
-
-
-        protected virtual void Set_Input_Script(int type)
-        {
-            switch (type)
-            {
-                case 0: // Mouse + Keyboard (Stepwise)
-                    inputScript = gameObject.AddComponent<Drive_Control_Input_01_Keyboard_Stepwise_CS>();
-                    break;
-
-                case 1: // Mouse + Keyboard (Pressing)
-                    inputScript = gameObject.AddComponent<Drive_Control_Input_02_Keyboard_Pressing_CS>();
-                    break;
-
-                case 2: // Gamepad (Single stick)
-                    inputScript = gameObject.AddComponent<Drive_Control_Input_03_Single_Stick_CS>();
-                    break;
-
-                case 3: // Gamepad (Twin sticks)
-                    inputScript = gameObject.AddComponent<Drive_Control_Input_04_Twin_Sticks_CS>();
-                    break;
-
-                case 4: // Gamepad (Triggers)
-                    inputScript = gameObject.AddComponent<Drive_Control_Input_05_Triggers_CS>();
-                    break;
-
-                case 10: // AI
-                    inputScript = gameObject.AddComponent<Drive_Control_Input_99_AI_CS>();
-                    break;
             }
         }
 
-
         AnimationCurve Create_Curve()
-        { // Create a temporary AnimationCurve.
+        { // Tạo một AnimationCurve tạm thời.
             Debug.LogWarning("'Curve' is not set correctly in 'Drive_Control_CS'.");
             Keyframe key1 = new Keyframe(0.0f, 0.0f, 1.0f, 1.0f);
             Keyframe key2 = new Keyframe(1.0f, 1.0f, 1.0f, 1.0f);
@@ -175,71 +136,68 @@ namespace ChobiAssets.PTM
 
         void Update()
         {
-            if (isSelected || inputType == 10)
-            { // The tank is selected, or AI.
-                inputScript.Drive_Input();
-            }
+            inputScript.Drive_Input();
 
-            // Set the driving values, such as speed rate, brake drag and torque.
+            // Đặt các giá trị lái xe, chẳng hạn như tỷ lệ tốc độ, phanh xoắn và moment xoắn.
             Set_Driving_Values();
 
-            // Get the current velocity values;
+            // Lấy các giá trị tốc độ hiện tại;
             Current_Velocity = thisRigidbody.velocity.magnitude;
         }
 
 
         void FixedUpdate()
         {
-            // Get the current velocity values;
+            // Lấy các giá trị tốc độ hiện tại;
             currentVelocityMagnutude = thisRigidbody.velocity.magnitude;
 
-            // Control the automatic parking brake.
+            // Kiểm soát phanh tay tự động.
             Control_Parking_Brake();
 
-            // Call anti-spinning function.
+            // Gọi hàm chống quay.
             Anti_Spin();
 
-            // Call anti-slipping function.
+            // Gọi hàm chống trượt.
             if (Use_AntiSlip)
             {
                 Anti_Slip();
             }
 
-            // Limit the torque in slope.
+            // Giới hạn moment xoắn theo góc của độ dốc.
             if (Torque_Limitter)
             {
                 Limit_Torque();
             }
 
-            // Add downforce.
+            // Thêm lực đối nặng.
             if (Use_Downforce)
             {
                 Add_Downforce();
             }
         }
 
-        
+
         void Set_Driving_Values()
         {
             if (Acceleration_Flag)
             {
-                // Sync the virtual speed and the actual speed.
+                // Đồng bộ hóa tốc độ ảo và tốc độ thực tế.
                 if (Sync_Speed_Rate)
                 {
                     if (Pivot_Turn_Flag == false && (L_Input_Rate * R_Input_Rate) != 0.0f)
-                    { // Not pivot-turning, not brake-turning.
+                    { // Không chuyển hướng, không phanh quay.
 
-                        // Check the difference between the virtual speed and the actual speed.
+                        // Kiểm tra sự khác biệt giữa tốc độ ảo và tốc độ thực tế.
                         var currentActualSpeedRate = currentVelocityMagnutude / Max_Speed;
                         if (((Speed_Rate * Actual_Speed_Offset_Rate) - currentActualSpeedRate) > Actual_Speed_Tolerance_Rate)
-                        { // The difference is large.
+                        { // Sự khác biệt lớn.
 
-                            // Check the tilt.
+                            // Kiểm tra góc nghiêng.
                             var currentTiltAngle = Mathf.Abs(Mathf.DeltaAngle(thisTransform.eulerAngles.x, 0.0f));
                             if (currentTiltAngle < 5.0f)
-                            { // Almost horizontal.
+                            { // Gần như nằm ngang.
 
-                                // Make the virtual speed approximate to the actual speed.
+                                // Làm cho tốc độ ảo gần với tốc độ thực tế.
                                 if (leftSpeedRate != 0.0f)
                                 {
                                     leftSpeedRate = Mathf.MoveTowards(leftSpeedRate, currentActualSpeedRate * Mathf.Sign(leftSpeedRate), 40.0f * Time.deltaTime);
@@ -253,22 +211,9 @@ namespace ChobiAssets.PTM
                     }
                 }
 
-                // Set the "leftSpeedRate" and "rightSpeedRate".
+                // Đặt giá trị "TyLeToc_L" và "TyLeToc_R".
                 leftSpeedRate = Calculate_Speed_Rate(leftSpeedRate, -L_Input_Rate);
                 rightSpeedRate = Calculate_Speed_Rate(rightSpeedRate, R_Input_Rate);
-                if (inputType == 10)
-                { // AI tank.
-
-                    // Synchronize the left and right speed rates to improve the straightness.
-                    if (Stop_Flag == false && L_Input_Rate == -R_Input_Rate)
-                    { // Not stopping && Going straight.
-
-                        // Set the average value to the both sides.
-                        float averageRate = (leftSpeedRate + rightSpeedRate) * 0.5f;
-                        leftSpeedRate = averageRate;
-                        rightSpeedRate = averageRate;
-                    }
-                }
             }
             else
             {
@@ -276,22 +221,22 @@ namespace ChobiAssets.PTM
                 rightSpeedRate = R_Input_Rate;
             }
 
-            // Set the "Speed_Rate" value.
+            // Đặt giá trị "TyLeToc_Vantoc".
             Speed_Rate = Mathf.Max(Mathf.Abs(leftSpeedRate), Mathf.Abs(rightSpeedRate));
             Speed_Rate = Acceleration_Curve.Evaluate(Speed_Rate);
 
-            // Check the pivot-turn.
+            // Kiểm tra chuyển hướng bánh.
             if (Pivot_Turn_Flag)
-            { // The tank is doing pivot-turn.
-                // Clamp the speed rate.
+            { // Xe tăng đang thực hiện chuyển hướng.
+                // Giới hạn tỷ lệ tốc độ.
                 Speed_Rate = Mathf.Clamp(Speed_Rate, 0.0f, Pivot_Turn_Rate);
             }
 
-            // Set the "L_Brake_Drag" and "R_Brake_Drag".
+            // Đặt giá trị "PhanhXoanBenTrai" và "PhanhXoanBenPhai".
             L_Brake_Drag = Mathf.Clamp(Turn_Brake_Drag * -Turn_Brake_Rate, 0.0f, Turn_Brake_Drag);
             R_Brake_Drag = Mathf.Clamp(Turn_Brake_Drag * Turn_Brake_Rate, 0.0f, Turn_Brake_Drag);
 
-            // Set the "Left_Torque" and "Right_Torque".
+            // Đặt giá trị "MomentXoanBenTrai" và "MomentXoanBenPhai".
             Left_Torque = Torque * -Mathf.Sign(leftSpeedRate) * Mathf.Ceil(Mathf.Abs(leftSpeedRate)); // (Note.) When the "leftSpeedRate" is zero, the torque will be set to zero.
             Right_Torque = Torque * Mathf.Sign(rightSpeedRate) * Mathf.Ceil(Mathf.Abs(rightSpeedRate));
         }
@@ -319,30 +264,27 @@ namespace ChobiAssets.PTM
                 moveRate = deceleRate;
             }
             else if (Mathf.Sign(targetRate) == Mathf.Sign(currentRate))
-            { // The both rates have the same direction.
+            { // Cả hai tỷ lệ cùng hướng.
                 if (Mathf.Abs(targetRate) > Mathf.Abs(currentRate))
-                { // It should be in acceleration.
+                {  // Nên gia tốc.
                     moveRate = acceleRate;
                 }
                 else
-                { // It should be in deceleration.
+                { // Nên giảm tốc.
                     moveRate = deceleRate;
                 }
             }
             else
-            { // The both rates have different directions. >> It should be in deceleration until the currentRate becomes zero.
-                // Decrease the speed rapidly like a brake.
+            { // Cả hai tỷ lệ có hướng khác nhau. >> Nên giảm tốc cho đến khi tỷ lệ hiện tại trở thành không.
+              // Giảm tốc đột ngột như phanh.
                 moveRate = deceleRate * 10.0f;
 
-                // Stop the tank while switching the direction.
-                if (inputType != 10)
-                { // Not AI tank.
-                    var tempRate = Mathf.MoveTowards(currentRate, targetRate, moveRate * Time.deltaTime);
-                    if ((currentRate > 0.0f && tempRate <= 0.0f) || (currentRate <= 0.0f && tempRate > 0.0f))
-                    { // From forward to backward, or from backward to forward.
-                        StartCoroutine("Switch_Direction_Timer");
-                        return tempRate;
-                    }
+                // Dừng xe tăng trong quá trình chuyển hướng.
+                var tempRate = Mathf.MoveTowards(currentRate, targetRate, moveRate * Time.deltaTime);
+                if ((currentRate > 0.0f && tempRate <= 0.0f) || (currentRate <= 0.0f && tempRate > 0.0f))
+                { // Từ phía trước sang phía sau, hoặc từ phía sau sang phía trước.
+                    StartCoroutine("Switch_Direction_Timer");
+                    return tempRate;
                 }
             }
 
@@ -354,7 +296,7 @@ namespace ChobiAssets.PTM
         {
             switchDirectionTimerFlag = true;
             var count = 0.0f;
-            while(count < Switch_Direction_Lag)
+            while (count < Switch_Direction_Lag)
             {
                 count += Time.deltaTime;
                 yield return null;
@@ -366,117 +308,114 @@ namespace ChobiAssets.PTM
         void Control_Parking_Brake()
         {
             if (Stop_Flag)
-            { // The tank should stop.
+            { // Xe tăng nên dừng.
 
-                // Get the angular velocitie of the Rigidbody.
+                // Lấy vận tốc góc của Rigidbody.
                 var currentAngularVelocityMagnitude = thisRigidbody.angularVelocity.magnitude;
 
-                // Control the parking brake according to the velocity.
+                // Kiểm soát phanh tay dựa trên vận tốc.
                 if (Parking_Brake)
-                { // The parking brake is working now.
+                { // Phanh tay đang hoạt động.
 
-                    // Check the Rigidbody velocities.
+                    // Kiểm tra vận tốc của Rigidbody.
                     if (currentVelocityMagnutude > Parking_Brake_Velocity || currentAngularVelocityMagnitude > Parking_Brake_Angular_Velocity)
-                    { // The Rigidbody should have been moving by receiving external force.
-                        
-                        // Release the parking brake.
+                    { // Rigidbody nên đang chuyển động bởi lực ngoại.
+
+                        // Giải phóng phanh tay.
                         Parking_Brake = false;
                         thisRigidbody.constraints = RigidbodyConstraints.None;
                         return;
-                    } // The Rigidbody almost stops.
+                    } // Rigidbody gần như dừng lại.
                     return;
                 }
                 else
-                { // The parking brake is not working.
+                { // Phanh tay không hoạt động.
 
-                    // Check the Rigidbody velocities.
+                    // Kiểm tra vận tốc của Rigidbody.
                     if (currentVelocityMagnutude < Parking_Brake_Velocity && currentAngularVelocityMagnitude < Parking_Brake_Angular_Velocity)
-                    { // The Rigidbody almost stops.
+                    { // Rigidbody gần như dừng lại.
 
-                        // Put on the parking brake.
+                        // Đặt phanh tay.
                         Parking_Brake = true;
                         thisRigidbody.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationY;
                         leftSpeedRate = 0.0f;
                         rightSpeedRate = 0.0f;
                         return;
-                    } // The Rigidbody almost stops.
+                    } // Rigidbody gần như dừng lại.
                     return;
                 }
             }
             else
-            { // The tank should be driving now.
+            { // Xe tăng nên chạy.
                 if (Parking_Brake == true)
-                { // The parking brake is still working.
+                { // Phanh tay vẫn đang hoạt động.
 
-                    // Release parking brake.
+                    // Giải phóng phanh tay.
                     Parking_Brake = false;
                     thisRigidbody.constraints = RigidbodyConstraints.None;
                 }
             }
         }
 
-
         void Anti_Spin()
         {
-            // Reduce the spinning motion by controling the angular velocity of the Rigidbody.
+            // Giảm chuyển động xoay bằng cách kiểm soát vận tốc góc của Rigidbody.
             if (L_Input_Rate != R_Input_Rate && Turn_Brake_Rate == 0.0f)
-            { // The tank should not be doing pivot-turn or brake-turn.
+            { // Xe tăng không nên thực hiện pivot-turn hoặc brake-turn.
 
-                // Reduce the angular velocity on Y-axis.
+                // Giảm vận tốc góc theo trục Y.
                 Vector3 currentAngularVelocity = thisRigidbody.angularVelocity;
                 currentAngularVelocity.y *= 0.9f;
 
-                // Set the new angular velocity.
+                // Đặt vận tốc góc mới.
                 thisRigidbody.angularVelocity = currentAngularVelocity;
             }
         }
 
-
-
         void Anti_Slip()
         {
-            // Reduce the slippage by controling the velocity of the Rigidbody.
+            // Giảm trượt bằng cách kiểm soát vận tốc của Rigidbody.
 
-            // Cast a ray downward to detect the ground.
+            // Phát ra một tia xuống để phát hiện mặt đất.
             var ray = new Ray();
             ray.origin = thisTransform.position;
             ray.direction = -thisTransform.up;
-            if (Physics.Raycast(ray, Ray_Distance, Layer_Settings_CS.Anti_Slipping_Layer_Mask) == true)
-            { // The ray hits the ground.
+            if (Physics.Raycast(ray, Ray_Distance, Layer_Settings_CS.Anti_Slipping_Layer_Mask))
+            { // Tia chạm đất.
 
-                // Control the velocity of the Rigidbody.
+                // Kiểm soát vận tốc của Rigidbody.
                 Vector3 currentVelocity = thisRigidbody.velocity;
                 if (leftSpeedRate == 0.0f && rightSpeedRate == 0.0f)
-                { // The tank should stop.
-                    // Reduce the Rigidbody velocity gradually.
+                { // Xe tăng nên dừng lại.
+                  // Giảm vận tốc của Rigidbody một cách dần dần.
                     currentVelocity.x *= 0.9f;
                     currentVelocity.z *= 0.9f;
                 }
                 else
-                { // The tank should been driving.
+                { // Xe tăng đang di chuyển.
                     float sign;
                     if (leftSpeedRate == rightSpeedRate)
-                    { // The tank should be going straight forward or backward.
+                    { // Xe tăng nên di chuyển thẳng đi phía trước hoặc phía sau.
                         if (Mathf.Abs(leftSpeedRate) < 0.2f)
-                        { // The tank almost stops.
-                            // Cancel the function, so that the tank can smoothly switches the direction forward and backward.
+                        { // Xe tăng gần dừng lại.
+                          // Hủy hàm, để xe tăng có thể chuyển hướng trơn tru giữa đi phía trước và đi phía sau.
                             return;
                         }
                         sign = Mathf.Sign(leftSpeedRate);
                     }
                     else if (leftSpeedRate == -rightSpeedRate)
-                    { // The tank should be doing pivot-turn.
+                    { // Xe tăng đang thực hiện pivot-turn.
                         sign = 1.0f;
                     }
                     else
-                    { // The tank should be doing brake-turn.
+                    { // Xe tăng đang thực hiện brake-turn.
                         sign = Mathf.Sign(leftSpeedRate + rightSpeedRate);
                     }
-                    // Change the velocity of the Rigidbody forcibly.
+                    // Thay đổi vận tốc của Rigidbody bằng cách ép buộc.
                     currentVelocity = Vector3.MoveTowards(currentVelocity, thisTransform.forward * sign * Current_Velocity, 32.0f * Time.fixedDeltaTime);
                 }
 
-                // Set the new velocity.
+                // Đặt vận tốc mới.
                 thisRigidbody.velocity = currentVelocity;
             }
         }
@@ -484,94 +423,42 @@ namespace ChobiAssets.PTM
 
         void Limit_Torque()
         {
-            // Reduce the torque according to the angle of the slope.
+            // Giảm moment quán tính dựa trên góc nghiêng của địa hình.
             var torqueRate = Mathf.DeltaAngle(thisTransform.eulerAngles.x, 0.0f) / Max_Slope_Angle;
             if (leftSpeedRate > 0.0f && rightSpeedRate > 0.0f)
-            { // The tank should be going forward.
+            { // Xe tăng nên tiến về phía trước.
                 Torque = Mathf.Lerp(defaultTorque, 0.0f, torqueRate);
             }
             else
-            { // The tank should be going backward.
+            { // Xe tăng nên lùi về phía sau.
                 Torque = Mathf.Lerp(defaultTorque, 0.0f, -torqueRate);
             }
         }
 
-
         void Add_Downforce()
         {
-            // Add downforce.
+            // Thêm lực ép xuống (downforce).
             var downforceRate = Downforce_Curve.Evaluate(Current_Velocity / Max_Speed);
             thisRigidbody.AddRelativeForce(Vector3.up * (-Downforce * downforceRate));
         }
 
-
-        void Support_Brake_Turn()
-        {
-            // Add torque to the body in order to support the brake turn in the low speed.
-            var supportTorque = 100000.0f;
-            if (L_Brake_Drag == Turn_Brake_Drag)
-            {
-                var supportRate = (1.0f - Mathf.Abs(rightSpeedRate)) * Mathf.Sign(rightSpeedRate);
-                thisRigidbody.AddRelativeTorque(Vector3.up * supportRate * -supportTorque);
-            }
-            else if (R_Brake_Drag == Turn_Brake_Drag)
-            {
-                var supportRate = (1.0f - Mathf.Abs(leftSpeedRate)) * Mathf.Sign(leftSpeedRate);
-                thisRigidbody.AddRelativeTorque(Vector3.up * supportRate * supportTorque);
-            }
-        }
-
-
         void Call_Indicator()
         {
-            // Call "UI_Speed_Indicator_Control_CS" in the scene.
+            // Gọi đối tượng "UI_Speed_Indicator_Control_CS" trong scene.
             if (UI_Speed_Indicator_Control_CS.Instance)
             {
                 bool isManual = (General_Settings_CS.Input_Type == 0); // "Mouse + Keyboard (Stepwise)".
                 UI_Speed_Indicator_Control_CS.Instance.Get_Drive_Script(this, isManual, currentStep);
             }
         }
-
-
-        public void Shift_Gear(int currentStep)
-        { // Called from "Drive_Control_Input_01_Keyboard_Stepwise_CS".
-            this.currentStep = currentStep;
-
-            // Call "UI_Speed_Indicator_Control_CS" in the scene.
-            if (UI_Speed_Indicator_Control_CS.Instance)
-            {
-                UI_Speed_Indicator_Control_CS.Instance.Get_Current_Step(currentStep);
-            }
-        }
-
-
-        void Get_AI_CS()
-        { // Called from "AI_CS".
-            inputType = 10;
-        }
-
-
         void Selected(bool isSelected)
-        { // Called from "ID_Settings_CS".
+        {
             this.isSelected = isSelected;
 
             if (isSelected)
             {
                 Call_Indicator();
             }
-        }
-
-
-        void MainBody_Destroyed_Linkage()
-        { // Called from "Damage_Control_Center_CS".
-            Destroy(inputScript as Object);
-            Destroy(this);
-        }
-
-
-        void Pause(bool isPaused)
-        { // Called from "Game_Controller_CS".
-            this.enabled = !isPaused;
         }
 
     }

@@ -395,11 +395,6 @@ namespace ChobiAssets.PTM
                                 currentMaxSpeedRate = Max_Speed_Rate * Settings_Script.Combat_Speed_Rate;
                             }
 
-                            // Call the "Aiming_Control_CS" to lock on the target.
-                            if (aimingScript)
-                            {
-                                aimingScript.AI_Lock_On(Target_Transform);
-                            }
                             break;
 
                         case 1: // Offensive..
@@ -863,12 +858,6 @@ namespace ChobiAssets.PTM
             hasApproached = false;
             isStaying = false;
             currentMaxSpeedRate = Max_Speed_Rate * Settings_Script.Patrol_Speed_Rate;
-
-            // Call the "Aiming_Control_CS" to lock off the target.
-            if (aimingScript)
-            {
-                aimingScript.AI_Lock_Off();
-            }
 
             if (defensiveType == 0)
             { // Waypoint mode.

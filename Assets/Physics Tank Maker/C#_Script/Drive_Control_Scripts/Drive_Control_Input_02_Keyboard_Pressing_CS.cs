@@ -4,9 +4,15 @@ using UnityEngine;
 namespace ChobiAssets.PTM
 {
 
-    public class Drive_Control_Input_02_Keyboard_Pressing_CS : Drive_Control_Input_01_Keyboard_Stepwise_CS
+    public class Drive_Control_Input_02_Keyboard_Pressing_CS : Drive_Control_Input_00_Base_CS
     {
 
+        protected float vertical;
+        protected float horizontal;
+
+        protected float brakingTime = 0.25f;
+        protected int reverseStepCount = 2;
+        protected int forwardStepCount = 4;
         public override void Drive_Input()
         {
             // Set "vertical".
@@ -45,7 +51,7 @@ namespace ChobiAssets.PTM
         }
 
 
-        protected override void Set_Values()
+        protected void Set_Values()
         {
             // In case of stopping.
             if (vertical == 0.0f && horizontal == 0.0f)
@@ -97,7 +103,23 @@ namespace ChobiAssets.PTM
             controlScript.Pivot_Turn_Flag = false;
             Brake_Turn();
         }
+        protected void Brake_Turn()
+        {
+            if (horizontal < 0.0f)
+            { // Left turn.
+                controlScript.L_Input_Rate = 0.0f;
+                controlScript.R_Input_Rate = vertical;
+            }
+            else
+            { // Right turn.
+                controlScript.L_Input_Rate = -vertical;
+                controlScript.R_Input_Rate = 0.0f;
+            }
 
+            // Increase the "Turn_Brake_Rate" with the lapse of time.
+            controlScript.Turn_Brake_Rate += (1.0f / brakingTime / Mathf.Abs(controlScript.Speed_Rate)) * Time.deltaTime * Mathf.Sign(horizontal);
+            controlScript.Turn_Brake_Rate = Mathf.Clamp(controlScript.Turn_Brake_Rate, -1.0f, 1.0f);
+        }
     }
 
 }

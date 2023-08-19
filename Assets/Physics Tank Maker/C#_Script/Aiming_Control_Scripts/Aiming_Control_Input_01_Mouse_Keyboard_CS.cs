@@ -4,43 +4,41 @@ using UnityEngine;
 namespace ChobiAssets.PTM
 {
 
-	public class Aiming_Control_Input_01_Mouse_Keyboard_CS : Aiming_Control_Input_00_Base_CS
-	{
+    public class Aiming_Control_Input_01_Mouse_Keyboard_CS : Aiming_Control_Input_00_Base_CS
+    {
 
         protected Gun_Camera_CS gunCameraScript;
         protected int thisRelationship;
-		protected Vector3 screenCenter = Vector3.zero;
-
+        protected Vector3 screenCenter = Vector3.zero;
 
         public override void Prepare(Aiming_Control_CS aimingScript)
         {
             this.aimingScript = aimingScript;
 
-            // Set the "Use_Auto_Turn".
+            // Đặt "Use_Auto_Turn".
             aimingScript.Use_Auto_Turn = true;
 
-            // Get the "Gun_Camera_CS".
+            // Lấy "Gun_Camera_CS".
             gunCameraScript = GetComponentInChildren<Gun_Camera_CS>();
 
-            // Set the relationship.
+            // Đặt mối quan hệ.
             ID_Settings_CS idScript = GetComponentInParent<ID_Settings_CS>();
             if (idScript)
             {
                 thisRelationship = idScript.Relationship;
             }
 
-            // Set the initial aiming mode.
+            // Đặt chế độ ngắm ban đầu.
             aimingScript.Mode = 1; // Free aiming.
             aimingScript.Switch_Mode();
 
-            // Set the initial target position.
+            // Đặt vị trí mục tiêu ban đầu.
             aimingScript.Target_Position = transform.position + (transform.forward * 128.0f);
         }
 
-
         public override void Get_Input()
-		{
-            // Switch the aiming mode.
+        {
+            // Chuyển đổi chế độ ngắm.
             if (Input.GetKeyDown(General_Settings_CS.Aim_Mode_Switch_Key))
             {
                 if (aimingScript.Mode == 0 || aimingScript.Mode == 2)
@@ -49,36 +47,35 @@ namespace ChobiAssets.PTM
                 }
                 else
                 {
-                    aimingScript.Mode = 0; // Keep the initial positon.
+                    aimingScript.Mode = 0; // Giữ vị trí ban đầu.
                 }
                 aimingScript.Switch_Mode();
             }
 
-
-            // Adjust aiming.
+            // Điều chỉnh ngắm.
             if (gunCameraScript && gunCameraScript.Gun_Camera.enabled)
-            { // The gun camera is enabled now.
+            { // Hiện tại camera súng đã được kích hoạt.
 
-                // Set the adjust angle.
+                // Đặt góc điều chỉnh.
                 aimingScript.Adjust_Angle.x += Input.GetAxis("Mouse X") * General_Settings_CS.Aiming_Sensibility;
                 aimingScript.Adjust_Angle.y += Input.GetAxis("Mouse Y") * General_Settings_CS.Aiming_Sensibility;
 
-                // Check it is locking-on now.
+                // Kiểm tra hiện đang trong quá trình khóa mục tiêu.
                 if (aimingScript.Target_Transform)
-                { // Now locking-on the target.
-                    // Cancel the lock-on.
+                { // Hiện đang khóa mục tiêu.
+                  // Hủy khóa mục tiêu.
                     if (Input.GetKeyDown(General_Settings_CS.Turret_Cancel_Key))
                     {
                         aimingScript.Target_Transform = null;
                         aimingScript.Target_Rigidbody = null;
                     }
 
-                    // Control "reticleAimingFlag" in "Aiming_Control_CS".
+                    // Điều khiển "reticleAimingFlag" trong "Aiming_Control_CS".
                     aimingScript.reticleAimingFlag = false;
                 }
                 else
-                { // Now not locking-on.
-                    // Try to find a new target.
+                { // Hiện tại chưa khóa mục tiêu.
+                  // Cố gắng tìm mục tiêu mới.
                     if (Input.GetKey(General_Settings_CS.Turret_Cancel_Key) == false)
                     {
                         screenCenter.x = Screen.width * 0.5f;
@@ -86,20 +83,20 @@ namespace ChobiAssets.PTM
                         aimingScript.Reticle_Aiming(screenCenter, thisRelationship);
                     }
 
-                    // Control "reticleAimingFlag" in "Aiming_Control_CS".
+                    // Điều khiển "reticleAimingFlag" trong "Aiming_Control_CS".
                     aimingScript.reticleAimingFlag = true;
                 }
 
-                // Reset the "Turret_Speed_Multiplier".
+                // Đặt lại "Turret_Speed_Multiplier".
                 aimingScript.Turret_Speed_Multiplier = 1.0f;
             }
             else
-            { // The gun camera is disabled now.
+            { // Hiện tại camera súng đã bị tắt.
 
-                // Reset the adjust angle.
+                // Đặt lại góc điều chỉnh.
                 aimingScript.Adjust_Angle = Vector3.zero;
 
-                // Stop the turret and cannon rotation while pressing the cancel button. >> Only the camera rotates.
+                // Dừng xoay pháo và nòng súng khi nhấn nút hủy bỏ. >> Chỉ có camera quay.
                 if (Input.GetKey(General_Settings_CS.Turret_Cancel_Key))
                 {
                     aimingScript.Turret_Speed_Multiplier -= 2.0f * Time.deltaTime;
@@ -110,44 +107,20 @@ namespace ChobiAssets.PTM
                 }
                 aimingScript.Turret_Speed_Multiplier = Mathf.Clamp01(aimingScript.Turret_Speed_Multiplier);
 
-                // Free aiming.
+                // Ngắm tự do.
                 if (aimingScript.Mode == 1)
-                { // Free aiming.
+                { // Ngắm tự do.
 
-                    // Find the target.
+                    // Tìm mục tiêu.
                     screenCenter.x = Screen.width * 0.5f;
                     screenCenter.y = Screen.height * (0.5f + General_Settings_CS.Aiming_Offset);
                     aimingScript.Cast_Ray_Free(screenCenter);
                 }
 
-                // Control "reticleAimingFlag" in "Aiming_Control_CS".
+                // Điều khiển "reticleAimingFlag" trong "Aiming_Control_CS".
                 aimingScript.reticleAimingFlag = false;
             }
-
-            
-            /*
-            // Left lock on.
-            if (Input.GetKeyDown(General_Settings_CS.Aim_Lock_On_Left_Key))
-            {
-                aimingScript.Auto_Lock(0, thisRelationship);
-                return;
-            }
-            // Right lock on.
-            if (Input.GetKeyDown(General_Settings_CS.Aim_Lock_On_Right_Key))
-            {
-                aimingScript.Auto_Lock(1, thisRelationship);
-                return;
-            }
-            // Front lock on.
-            if (Input.GetKeyDown(General_Settings_CS.Aim_Lock_On_Front_Key))
-            {
-                aimingScript.Auto_Lock(2, thisRelationship);
-                return;
-			}
-            */
-            
         }
-
-	}
+    }
 
 }

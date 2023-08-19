@@ -66,7 +66,6 @@ namespace ChobiAssets.PTM
                     // Fire.
                     cannonFireScript.Fire();
                     aimingCount = 0.0f;
-                    aimingScript.AI_Random_Offset();
                 }
             }
             else
@@ -81,7 +80,6 @@ namespace ChobiAssets.PTM
                     { // The target might be in the dead angle.
                         // Change the aiming offset.
                         waitingCount = 0.0f;
-                        aimingScript.AI_Random_Offset();
                     }
                 }
             }

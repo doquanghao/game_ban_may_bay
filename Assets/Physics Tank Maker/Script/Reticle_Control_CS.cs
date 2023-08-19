@@ -16,7 +16,7 @@ namespace ChobiAssets.PTM
 
 		// User options >>
 		public string Reticle_Name = "Reticle";
-		public Gun_Camera_CS Gun_Camera_Script;
+		//public Gun_Camera_CS Gun_Camera_Script;
         // << User options
 
         Image reticleImage;
@@ -43,10 +43,10 @@ namespace ChobiAssets.PTM
             }
 
             // Get the "Gun_Camera_CS" script in the tank.
-            if (Gun_Camera_Script == null)
-            {
-                Gun_Camera_Script = GetComponent<Gun_Camera_CS>();
-            }
+            // if (Gun_Camera_Script == null)
+            // {
+            //     Gun_Camera_Script = GetComponent<Gun_Camera_CS>();
+            // }
         }
 
 
@@ -58,15 +58,15 @@ namespace ChobiAssets.PTM
             }
 
             // Set the appearance.
-            reticleImage.enabled = Gun_Camera_Script.Gun_Camera.enabled;
+            // reticleImage.enabled = Gun_Camera_Script.Gun_Camera.enabled;
 
-            // Set the scale.
-            if (reticleImage.enabled)
-            {
-                // Change the scale according to the FOV.
-                var currentScale = Gun_Camera_Script.Maximum_FOV / Gun_Camera_Script.Gun_Camera.fieldOfView;
-                reticleImage.rectTransform.localScale = Vector3.one * currentScale;
-            }
+            // // Set the scale.
+            // if (reticleImage.enabled)
+            // {
+            //     // Change the scale according to the FOV.
+            //     var currentScale = Gun_Camera_Script.Maximum_FOV / Gun_Camera_Script.Gun_Camera.fieldOfView;
+            //     reticleImage.rectTransform.localScale = Vector3.one * currentScale;
+            // }
         }
 
 

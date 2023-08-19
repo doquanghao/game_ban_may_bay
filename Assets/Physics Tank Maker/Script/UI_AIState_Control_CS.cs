@@ -28,7 +28,6 @@ namespace ChobiAssets.PTM
 
 
         Text thisText;
-        AI_CS aiScript;
         Respawn_Controller_CS respawnScript;
         Transform aiRootTransform;
         string textFormat;
@@ -67,39 +66,6 @@ namespace ChobiAssets.PTM
                 return;
             }
 
-            switch (aiScript.Action_Type)
-            {
-                case 0: // Defensive.
-                    thisText.text = string.Format(textFormat, Patrol_Text, "");
-                    thisText.color = Patrol_Color;
-                    break;
-
-                case 1: // Offensive.
-                    if (aiScript.Detect_Flag)
-                    { // The AI tank has detected the target.
-                        thisText.text = string.Format(textFormat, Attack_Text, "");
-                        thisText.color = Attack_Color;
-                    }
-                    else
-                    { // The AI tank has lost the target.
-                        thisText.text = string.Format(textFormat, Lost_Text, Mathf.CeilToInt(aiScript.Losing_Count));
-                        thisText.color = Lost_Color;
-                    }
-                    break;
-            }
-        }
-
-
-        public void Get_AI_Script(AI_CS aiScript)
-        { // Called form "AI_CS" in the AI tanks in the scene.
-            this.aiScript = aiScript;
-            aiRootTransform = aiScript.transform.root;
-            if (string.IsNullOrEmpty(aiScript.Settings_Script.Tank_Name))
-            {
-                aiScript.Settings_Script.Tank_Name = aiRootTransform.name;
-            }
-            respawnScript = aiScript.GetComponentInParent<Respawn_Controller_CS>();
-            textFormat = aiScript.Settings_Script.Tank_Name + " = " + "{0}" + " {1}";
         }
 
     }

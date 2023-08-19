@@ -13,7 +13,7 @@ namespace ChobiAssets.PTM
   * Kịch bản này hoạt động kết hợp với "Drive_Wheel_Parent_CS" trong các đối tượng 'Create_##Wheels', và "Drive_Wheel_CS" trong bánh lái.
  */
 
-        public float Torque = 2000.0f;
+        public float Torque = 5000.0f;
         public float Max_Speed = 8.0f;
         public float Turn_Brake_Drag = 150.0f;
         public float Switch_Direction_Lag = 0.5f;
@@ -135,8 +135,8 @@ namespace ChobiAssets.PTM
             Drive_Input();
 
             // Đặt các giá trị lái xe, chẳng hạn như tỷ lệ tốc độ, phanh xoắn và moment xoắn.
-            Set_Driving_Values();
 
+            Set_Driving_Values();
             // Lấy các giá trị tốc độ hiện tại;
             Current_Velocity = thisRigidbody.velocity.magnitude;
         }
@@ -233,7 +233,8 @@ namespace ChobiAssets.PTM
             R_Brake_Drag = Mathf.Clamp(Turn_Brake_Drag * Turn_Brake_Rate, 0.0f, Turn_Brake_Drag);
 
             // Đặt giá trị "MomentXoanBenTrai" và "MomentXoanBenPhai".
-            Left_Torque = Torque * -Mathf.Sign(leftSpeedRate) * Mathf.Ceil(Mathf.Abs(leftSpeedRate)); // (Note.) When the "leftSpeedRate" is zero, the torque will be set to zero.
+
+            Left_Torque = Torque * -Mathf.Sign(leftSpeedRate) * Mathf.Ceil(Mathf.Abs(leftSpeedRate));
             Right_Torque = Torque * Mathf.Sign(rightSpeedRate) * Mathf.Ceil(Mathf.Abs(rightSpeedRate));
         }
 
@@ -355,7 +356,7 @@ namespace ChobiAssets.PTM
             // Giảm chuyển động xoay bằng cách kiểm soát vận tốc góc của Rigidbody.
             if (L_Input_Rate != R_Input_Rate && Turn_Brake_Rate == 0.0f)
             { // Xe tăng không nên thực hiện pivot-turn hoặc brake-turn.
-
+                Debug.Log("Đã giảm");
                 // Giảm vận tốc góc theo trục Y.
                 Vector3 currentAngularVelocity = thisRigidbody.angularVelocity;
                 currentAngularVelocity.y *= 0.9f;
@@ -448,33 +449,10 @@ namespace ChobiAssets.PTM
 
         public void Drive_Input()
         {
-            // Đặt giá trị "vertical".
-            if (Input.GetKey(KeyCode.W))
-            {
-                vertical = 1.0f;
-            }
-            else if (Input.GetKey(KeyCode.S))
-            {
-                vertical = -0.5f;
-            }
-            else
-            {
-                vertical = 0.0f;
-            }
 
-            // Đặt giá trị "horizontal".
-            if (Input.GetKey(KeyCode.A))
-            {
-                horizontal = -1.0f;
-            }
-            else if (Input.GetKey(KeyCode.D))
-            {
-                horizontal = 1.0f;
-            }
-            else
-            {
-                horizontal = 0.0f;
-            }
+            horizontal = Input.GetAxis("Horizontal");
+            vertical = Input.GetAxis("Vertical");
+
             // Đặt giá trị "Stop_Flag", "L_Input_Rate", "R_Input_Rate" và "Turn_Brake_Rate".
             Set_Values();
         }
@@ -535,12 +513,16 @@ namespace ChobiAssets.PTM
         protected void Brake_Turn()
         {
             if (horizontal < 0.0f)
-            { // Rẽ trái.
+            {
+                Debug.Log("Rẽ trái.");
+                // Rẽ trái.
                 L_Input_Rate = 0.0f;
                 R_Input_Rate = vertical;
             }
             else
-            { // Rẽ phải.
+            {
+                Debug.Log("Rẽ phải.");
+                // Rẽ phải.
                 L_Input_Rate = -vertical;
                 R_Input_Rate = 0.0f;
             }

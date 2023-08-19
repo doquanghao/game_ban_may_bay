@@ -436,15 +436,6 @@ namespace ChobiAssets.PTM
             thisRigidbody.AddRelativeForce(Vector3.up * (-Downforce * downforceRate));
         }
 
-        void Call_Indicator()
-        {
-            // Gọi đối tượng "UI_Speed_Indicator_Control_CS" trong scene.
-            if (UI_Speed_Indicator_Control_CS.Instance)
-            {
-                bool isManual = (General_Settings_CS.Input_Type == 0); // "Mouse + Keyboard (Stepwise)".
-                UI_Speed_Indicator_Control_CS.Instance.Get_Drive_Script(this, isManual, currentStep);
-            }
-        }
 
 
         public void Drive_Input()
@@ -530,16 +521,6 @@ namespace ChobiAssets.PTM
             // Tăng "Turn_Brake_Rate" theo thời gian trôi qua.
             Turn_Brake_Rate += (1.0f / brakingTime / Mathf.Abs(Speed_Rate)) * Time.deltaTime * Mathf.Sign(horizontal);
             Turn_Brake_Rate = Mathf.Clamp(Turn_Brake_Rate, -1.0f, 1.0f);
-        }
-
-        void Selected(bool isSelected)
-        {
-            this.isSelected = isSelected;
-
-            if (isSelected)
-            {
-                Call_Indicator();
-            }
         }
 
     }

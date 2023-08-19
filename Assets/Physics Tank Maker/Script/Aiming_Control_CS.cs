@@ -358,11 +358,11 @@ namespace ChobiAssets.PTM
                 }
 
                 // Kiểm tra mối quan hệ.
-                var idScript = raycastHits[i].transform.GetComponentInParent<ID_Settings_CS>();
-                if (idScript && idScript.Relationship == thisRelationship)
-                {
-                    continue;
-                }
+                // var idScript = raycastHits[i].transform.GetComponentInParent<ID_Settings_CS>();
+                // if (idScript && idScript.Relationship == thisRelationship)
+                // {
+                //     continue;
+                // }
 
                 // Kiểm tra vật cản.
                 if (Physics.Linecast(ray.origin, raycastHits[i].point, out RaycastHit raycastHit, Layer_Settings_CS.Aiming_Layer_Mask))

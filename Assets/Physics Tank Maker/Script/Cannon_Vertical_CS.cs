@@ -18,7 +18,6 @@ namespace ChobiAssets.PTM
         public float Deceleration_Time = 0.1f;// Thời gian giảm tốc.
         public bool Upper_Course = false;   // Chọn hướng xoay.
         public Bullet_Generator_CS Bullet_Generator_Script;// Kịch bản tạo viên đạn.
-        // << User options
 
 
         Transform thisTransform;

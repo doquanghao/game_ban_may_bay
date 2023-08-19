@@ -30,7 +30,6 @@ namespace ChobiAssets.PTM
         public bool Has_Changed;
 
         // Được thiết lập bởi "Create_TrackBelt_CSEditor".
-        public RoadWheelsProp[] RoadWheelsProp_Array;
         public float Stored_Body_Mass;
 
         // Tham chiếu từ "Static_Wheel_Parent_CS".

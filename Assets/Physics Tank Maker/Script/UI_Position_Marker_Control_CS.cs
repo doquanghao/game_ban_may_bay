@@ -14,7 +14,6 @@ namespace ChobiAssets.PTM
         public Transform Marker_Transform;
         public Transform Root_Transform;
         public Transform Body_Transform;
-        public AI_CS AI_Script;
     }
 
 
@@ -106,7 +105,6 @@ namespace ChobiAssets.PTM
             newProp.Marker_Transform = newProp.Marker_Image.transform;
             newProp.Root_Transform = idScript.transform.root;
             newProp.Body_Transform = idScript.GetComponentInChildren<Rigidbody>().transform;
-            newProp.AI_Script = idScript.GetComponentInChildren<AI_CS>();
             markerDictionary.Add(idScript, newProp);
         }
 
@@ -136,7 +134,6 @@ namespace ChobiAssets.PTM
                 { // The reference to the MainBody has been lost. >> The tank has been respawned.
                     // Get the new references to the "MainBody" and "AI_CS".
                     markerDictionary[idScriptsList[i]].Body_Transform = idScriptsList[i].GetComponentInChildren<Rigidbody>().transform;
-                    markerDictionary[idScriptsList[i]].AI_Script = idScriptsList[i].GetComponentInChildren<AI_CS>();
                 }
 
                 // Set the enabled and the color, according to the relationship and the AI condition.
@@ -144,62 +141,15 @@ namespace ChobiAssets.PTM
                 {
                     case 0: // Friendly.
                         markerDictionary[idScriptsList[i]].Marker_Image.enabled = true;
-                        if (markerDictionary[idScriptsList[i]].AI_Script)
-                        { // AI tank.
-                            // Set the alpha.
-                            switch (markerDictionary[idScriptsList[i]].AI_Script.Action_Type)
-                            {
-                                case 0: // Defensive.
-                                    Friend_Color.a = Defensive_Alpha;
-                                    break;
 
-                                case 1: // Offensive.
-                                    Friend_Color.a = Offensive_Alpha;
-                                    break;
-                            }
-                            markerDictionary[idScriptsList[i]].Marker_Image.color = Friend_Color;
-                        }
-                        else
-                        { // Not AI tank.
-                            markerDictionary[idScriptsList[i]].Marker_Image.enabled = Show_Always;
-                            markerDictionary[idScriptsList[i]].Marker_Image.color = Friend_Color;
-                        }
+                        markerDictionary[idScriptsList[i]].Marker_Image.enabled = Show_Always;
+                        markerDictionary[idScriptsList[i]].Marker_Image.color = Friend_Color;
                         break;
 
                     case 1: // Hostile.
-                        if (markerDictionary[idScriptsList[i]].AI_Script)
-                        { // AI tank.
-                            // Set the alpha and the scale.
-                            switch (markerDictionary[idScriptsList[i]].AI_Script.Action_Type)
-                            {
-                                case 0: // Defensive.
-                                    if (Show_Always)
-                                    { // The marker is always displayed.
-                                        markerDictionary[idScriptsList[i]].Marker_Image.enabled = true;
-                                        Hostile_Color.a = Defensive_Alpha;
-                                        markerDictionary[idScriptsList[i]].Marker_Image.color = Hostile_Color;
-                                        markerDictionary[idScriptsList[i]].Marker_Transform.localScale = Vector3.one;
-                                    }
-                                    else
-                                    { // The marker is not displayed when the AI is defensive.
-                                        markerDictionary[idScriptsList[i]].Marker_Image.enabled = false;
-                                    }
-                                    break;
 
-                                case 1: // Offensive.
-                                    markerDictionary[idScriptsList[i]].Marker_Image.enabled = true;
-                                    // Set the alpha.
-                                    Hostile_Color.a = Offensive_Alpha;
-                                    markerDictionary[idScriptsList[i]].Marker_Image.color = Hostile_Color;
-                                    markerDictionary[idScriptsList[i]].Marker_Transform.localScale = Vector3.one * 1.5f;
-                                    break;
-                            }
-                        }
-                        else
-                        { // Not AI tank.
-                            markerDictionary[idScriptsList[i]].Marker_Image.enabled = Show_Always;
-                            markerDictionary[idScriptsList[i]].Marker_Image.color = Hostile_Color;
-                        }
+                        markerDictionary[idScriptsList[i]].Marker_Image.enabled = Show_Always;
+                        markerDictionary[idScriptsList[i]].Marker_Image.color = Hostile_Color;
                         break;
 
                     case 2: // Landmark.

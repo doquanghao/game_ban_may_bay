@@ -36,7 +36,7 @@ namespace ChobiAssets.PTM
         void Update()
         {
             // Thoát.
-            if (General_Settings_CS.Allow_Instant_Quit && Input.GetKeyDown(General_Settings_CS.Quit_Key))
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
                 Application.Quit();
                 return;

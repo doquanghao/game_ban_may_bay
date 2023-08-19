@@ -43,8 +43,6 @@ namespace ChobiAssets.PTM
         public float Actual_Speed_Tolerance_Rate = 0.2f;
 
 
-        // Được đặt bởi "inputType_Settings_CS".
-        public int inputType = 0;
 
         // Được tham chiếu từ "Drive_Wheel_Parent_CS".
         public bool Stop_Flag = true; // Được tham chiếu từ cả "inputType_Settings_CS".
@@ -73,11 +71,8 @@ namespace ChobiAssets.PTM
         float defaultTorque;
         float acceleRate;
         float deceleRate;
-        int currentStep;
         bool switchDirectionTimerFlag;
         float currentVelocityMagnutude;
-
-        bool isSelected;
 
         protected float vertical;
         protected float horizontal;
@@ -99,7 +94,6 @@ namespace ChobiAssets.PTM
             thisRigidbody = GetComponent<Rigidbody>();
             defaultTorque = Torque;
 
-            inputType = General_Settings_CS.Input_Type;
 
             // Đặt tỷ lệ gia tốc.
             if (Acceleration_Flag)

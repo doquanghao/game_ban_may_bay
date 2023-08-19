@@ -53,7 +53,7 @@ namespace ChobiAssets.PTM
             thisRigidbody = GetComponent<Rigidbody>();
             Turret_Speed_Multiplier = 1.0f;
 
-            Use_Auto_Lead = General_Settings_CS.Use_Auto_Lead;
+            Use_Auto_Lead = false;
 
             // Lấy các kịch bản "Turret_Horizontal_CS" và "Cannon_Vertical_CS" trong xe tăng.
             turretHorizontalScripts = GetComponentsInChildren<Turret_Horizontal_CS>();

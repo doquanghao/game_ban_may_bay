@@ -82,8 +82,8 @@ namespace ChobiAssets.PTM
             // Kẹp góc xoay.
             targetAngles.z = Mathf.Clamp(targetAngles.z, -10.0f, 90.0f);
             // Xoay mượt.
-            currentAngles.y = Mathf.SmoothDampAngle(currentAngles.y, targetAngles.y, ref currentRotationVelocity.y, 2.0f * Time.fixedDeltaTime);
-            currentAngles.z = Mathf.SmoothDampAngle(currentAngles.z, targetAngles.z, ref currentRotationVelocity.z, 2.0f * Time.fixedDeltaTime);
+            currentAngles.y = Mathf.SmoothDampAngle(currentAngles.y, targetAngles.y, ref currentRotationVelocity.y, 5.0f * Time.fixedDeltaTime);
+            currentAngles.z = Mathf.SmoothDampAngle(currentAngles.z, targetAngles.z, ref currentRotationVelocity.z, 5.0f * Time.fixedDeltaTime);
             thisTransform.eulerAngles = currentAngles;
         }
 

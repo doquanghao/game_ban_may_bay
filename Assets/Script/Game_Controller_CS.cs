@@ -2,7 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-
+using TMPro;
+using UnityEngine.UI;
 
 namespace ChobiAssets.PTM
 {
@@ -17,11 +18,24 @@ namespace ChobiAssets.PTM
 
         public bool Fix_Frame_Rate = true;
         public int Target_Frame_Rate = 120;
+        public TMP_Text Mission;
+        public TMP_Text Destruction_Level;
+        public TMP_Text Text_End_Game;
+        public GameObject displayTheWinScreen;
+
+        public int requiredEnemiesToWin = 10;
+
+        public int enemiesDestroyed = 0;
+        public int enemiesDestruction = 0;
 
         void Start()
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            enemiesDestroyed = 0;
+            enemiesDestruction = 0;
+            Cursor.lockState = CursorLockMode.Locked; // Khóa con trỏ chuột
+            Cursor.visible = false; // Ẩn con trỏ chuột
+            displayTheWinScreen.SetActive(false);
+            Mission.text = enemiesDestroyed + "/" + requiredEnemiesToWin;
             // Thiết lập lớp.
             Layer_Settings_CS.Layers_Collision_Settings();
 
@@ -43,6 +57,51 @@ namespace ChobiAssets.PTM
             }
         }
 
+        public void DestructionLevel()
+        {
+            enemiesDestruction++;
+            Destruction_Level.text = "Mức phá hủy " + enemiesDestruction / 3 + "%";
+            if (enemiesDestruction / 5 == 100)
+            {
+                Text_End_Game.text = "Thua";
+                Cursor.lockState = CursorLockMode.None; // Bỏ khóa con trỏ chuột
+                Cursor.visible = true; // Hiển thị con trỏ chuột
+                displayTheWinScreen.SetActive(true);
+                Time.timeScale = 0f;
+            }
+        }
+
+        public void EnemyDestroyed()
+        {
+            enemiesDestroyed++;
+            Mission.text = enemiesDestroyed + "/" + requiredEnemiesToWin;
+            if (enemiesDestroyed >= requiredEnemiesToWin)
+            {
+                 Text_End_Game.text = "Chiến thắng";
+                // Người chơi thắng
+                Cursor.lockState = CursorLockMode.None; // Bỏ khóa con trỏ chuột
+                Cursor.visible = true; // Hiển thị con trỏ chuột
+                displayTheWinScreen.SetActive(true);
+                Time.timeScale = 0f;
+            }
+        }
+        public void ReloadScene()
+        {
+            Time.timeScale = 1f;
+            Cursor.lockState = CursorLockMode.Locked; // Khóa con trỏ chuột
+            Cursor.visible = false; // Ẩn con trỏ chuột
+            // Lấy index của scene hiện tại
+            int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+
+            // Load lại scene bằng cách sử dụng index
+            SceneManager.LoadScene(currentSceneIndex);
+        }
+        public void QuitGame()
+        {
+            Time.timeScale = 1f;
+            // Dừng game
+            Application.Quit();
+        }
     }
 
 }

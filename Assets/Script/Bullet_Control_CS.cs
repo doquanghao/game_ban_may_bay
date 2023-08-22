@@ -28,6 +28,7 @@ namespace ChobiAssets.PTM
         public float Life_Time;
         public float Attack_Multiplier = 1.0f;
         public bool Debug_Flag = false;
+        public Game_Controller_CS Game_Controller_CS;
 
         bool isLiving = true;
 
@@ -74,8 +75,10 @@ namespace ChobiAssets.PTM
             {
                 if (collision.gameObject.CompareTag("b52"))
                 {
+                    Game_Controller_CS.EnemyDestroyed();
                     // Xóa GameObject b52
                     Destroy(collision.transform.parent.gameObject);
+
                 }
                 // Bắt đầu quá trình va chạm.
                 HE_Hit_Process();

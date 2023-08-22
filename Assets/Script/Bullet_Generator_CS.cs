@@ -17,8 +17,8 @@ namespace ChobiAssets.PTM
 
         public float Attack_Multiplier = 1.0f; // Được thiết lập bởi "Special_Settings_CS".
         public float Current_Bullet_Velocity; // Tham chiếu từ "Turret_Horizontal_CS", "Cannon_Vertical_CS", "UI_Lead_Marker_Control_CS".
+        public Game_Controller_CS Game_Controller_CS;
         Transform thisTransform;
-
 
         void Start()
         {
@@ -43,15 +43,15 @@ namespace ChobiAssets.PTM
 
 
         public void Fire_Linkage()
-        { 
-          // Tạo ra đạn và bắn.
+        {
+            // Tạo ra đạn và bắn.
             StartCoroutine(Generate_Bullet());
         }
 
 
         IEnumerator Generate_Bullet()
         {
-       
+
             // Tạo ra đạn.
             GameObject bulletObject;
             float attackPoint = 0;
@@ -71,6 +71,7 @@ namespace ChobiAssets.PTM
             bulletScript.Initial_Velocity = Current_Bullet_Velocity;
             bulletScript.Life_Time = Life_Time;
             bulletScript.Attack_Multiplier = Attack_Multiplier;
+            bulletScript.Game_Controller_CS = Game_Controller_CS;
 
             // Đặt tag.
             bulletObject.tag = "Finish"; // (Note.) The ray cast for aiming does not hit any object with "Finish" tag.

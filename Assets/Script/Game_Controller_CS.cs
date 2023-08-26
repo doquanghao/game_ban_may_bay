@@ -30,11 +30,9 @@ namespace ChobiAssets.PTM
 
         void Start()
         {
+            displayTheWinScreen.SetActive(false);
             enemiesDestroyed = 0;
             enemiesDestruction = 0;
-            Cursor.lockState = CursorLockMode.Locked; // Khóa con trỏ chuột
-            Cursor.visible = false; // Ẩn con trỏ chuột
-            displayTheWinScreen.SetActive(false);
             Mission.text = enemiesDestroyed + "/" + requiredEnemiesToWin;
             // Thiết lập lớp.
             Layer_Settings_CS.Layers_Collision_Settings();
@@ -46,6 +44,8 @@ namespace ChobiAssets.PTM
                 Application.targetFrameRate = Target_Frame_Rate;
             }
         }
+
+       
 
         void Update()
         {
@@ -61,7 +61,7 @@ namespace ChobiAssets.PTM
         {
             enemiesDestruction++;
             Destruction_Level.text = "Mức phá hủy " + enemiesDestruction / 3 + "%";
-            if (enemiesDestruction / 5 == 100)
+            if (enemiesDestruction / 3 == 100)
             {
                 Text_End_Game.text = "Thua";
                 Cursor.lockState = CursorLockMode.None; // Bỏ khóa con trỏ chuột
@@ -77,7 +77,7 @@ namespace ChobiAssets.PTM
             Mission.text = enemiesDestroyed + "/" + requiredEnemiesToWin;
             if (enemiesDestroyed >= requiredEnemiesToWin)
             {
-                 Text_End_Game.text = "Chiến thắng";
+                Text_End_Game.text = "Chiến thắng";
                 // Người chơi thắng
                 Cursor.lockState = CursorLockMode.None; // Bỏ khóa con trỏ chuột
                 Cursor.visible = true; // Hiển thị con trỏ chuột
